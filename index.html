@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c2425">
+  <meta name="description" content="ATMOS. O clima de agora e dos próximos dias, em uma interface clara, viva e interativa.">
+  <title>ATMOS — O tempo, do seu jeito</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+  <script src="interface.js" defer></script>
+</head>
+<body data-weather="clear" data-phase="day">
+  <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+  <div id="scroll-progress" aria-hidden="true"></div>
+  <div id="cursor-light" class="cursor-light" aria-hidden="true"></div>
+  <canvas id="weather-canvas" aria-hidden="true"></canvas>
+
+  <header class="site-header" id="topo">
+    <a class="brand" href="#inicio" aria-label="ATMOS, início">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true"><circle cx="20" cy="20" r="6" fill="currentColor"/><ellipse cx="20" cy="20" rx="17" ry="8" stroke="currentColor" stroke-width="1.5" transform="rotate(-32 20 20)"/><ellipse cx="20" cy="20" rx="17" ry="8" stroke="currentColor" stroke-width="1.5" transform="rotate(32 20 20)"/></svg>
+      <strong>ATMOS<span class="brand-super">®</span></strong>
+    </a>
+    <nav class="header-nav" aria-label="Navegação principal">
+      <a href="#inicio" class="nav-link is-current" data-section-link="inicio">Agora</a>
+      <a href="#previsao" class="nav-link" data-section-link="previsao">Previsão</a>
+    </nav>
+    <div class="header-actions">
+      <button type="button" class="location-launch" id="open-search" aria-label="Buscar cidade">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.2"/><path d="m15.4 15.4 5.1 5.1"/></svg>
+        <span id="header-city">Jaraguá do Sul</span>
+        <kbd>/</kbd>
+      </button>
+      <button type="button" class="unit-toggle" id="unit-toggle" aria-label="Alternar unidade"><span class="unit-active">°C</span><span>°F</span></button>
+      <button type="button" class="icon-button" id="refresh-button" aria-label="Atualizar previsão" title="Atualizar previsão"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.8 9A7 7 0 0 1 18.9 7.5L20 12M4 12l1.2 4.5A7 7 0 0 0 18.2 15"/></svg></button>
+      <button type="button" class="icon-button motion-button" id="fx-button" aria-pressed="true" aria-label="Pausar animações" title="Pausar animações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <section id="inicio" class="now-section" aria-labelledby="intro-title">
+      <div class="hero-meta page-width reveal"><span><span class="live-dot"></span> DADOS ATUAIS <span class="meta-separator">/</span> OPEN-METEO</span><span id="coord-label">26.479° S · 49.093° O</span></div>
+      <div id="weather-stage" class="weather-stage page-width" tabindex="0" aria-label="Visualização animada do clima atual">
+        <div class="stage-grid" aria-hidden="true"></div>
+        <div class="stage-light" aria-hidden="true"></div>
+        <div class="stage-index" aria-hidden="true"><span>01</span><span>OBSERVAÇÃO LOCAL</span></div>
+        <div class="stage-content">
+          <div class="location-row"><span class="location-marker" aria-hidden="true">⌖</span><span id="city-name">Jaraguá do Sul</span><button type="button" id="favorite-button" class="favorite-button" aria-pressed="false" aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos">☆</button></div>
+          <p class="region-name" id="region-name">Santa Catarina, Brasil</p>
+          <h1 class="hero-headline" id="intro-title">O tempo,<br>sem ruído<span class="headline-dot">.</span></h1>
+          <div class="hero-temperature" aria-label="Temperatura atual"><strong id="hero-temp">—</strong><span id="hero-degree">°C</span></div>
+          <p class="condition-line"><span class="condition-dot" aria-hidden="true"></span><span id="hero-condition">Consultando o céu...</span></p>
+          <p id="hero-description" class="hero-description">Recebendo dados meteorológicos atualizados.</p>
+          <a href="#previsao" class="hero-action"><span>Ver previsão</span><span class="action-arrow" aria-hidden="true">↗</span></a>
+        </div>
+        <div class="scene" aria-hidden="true">
+          <div class="scene-grid"></div>
+          <div class="scene-track scene-track-a"></div>
+          <div class="scene-track scene-track-b"></div>
+          <div class="orb-glow"></div>
+          <div id="atmos-orb" class="atmos-orb"><div class="orb-texture"></div><div class="orb-shade"></div><div class="orb-reflection"></div></div>
+          <div class="horizon-slab slab-one"></div><div class="horizon-slab slab-two"></div>
+          <div class="scene-coordinate">ATMOSPHERIC FIELD / 01</div>
+          <div class="scene-north">N <span>↑</span></div>
+        </div>
+        <div class="stage-aside">
+          <span class="aside-label">CONDIÇÕES LOCAIS <span>↗</span></span>
+          <p id="weather-story">Carregando um resumo das condições atuais.</p>
+          <div class="aside-bottom"><span id="updated-at">AGUARDANDO CONEXÃO</span><span id="local-clock">--:--:--</span></div>
+        </div>
+        <div class="stage-bottom"><span>SEU CÉU, AGORA.</span><a href="#indicadores">DESLIZE PARA EXPLORAR <span aria-hidden="true">↓</span></a><span class="stage-frame-label">ATMOS / 001</span></div>
+      </div>
+
+      <div class="metric-strip page-width" id="indicadores" aria-label="Indicadores meteorológicos atuais">
+        <article class="metric-card tilt reveal"><div class="metric-top"><span>SENSAÇÃO</span><span class="metric-top-icon">↗</span></div><div class="metric-big"><strong id="feels-like">—</strong><span class="temp-unit">°C</span></div><div class="metric-footer"><span>Parece lá fora</span><svg viewBox="0 0 50 24" aria-hidden="true"><path d="M1 21C12 21 11 2 23 2S37 21 49 4"/></svg></div></article>
+        <article class="metric-card tilt reveal"><div class="metric-top"><span>UMIDADE</span><span class="metric-top-icon">◌</span></div><div class="metric-big"><strong id="humidity">—</strong><span>%</span></div><div class="metric-meter"><span id="humidity-meter"></span></div><div class="metric-footer"><span id="humidity-caption">Umidade relativa</span><span>02</span></div></article>
+        <article class="metric-card tilt reveal"><div class="metric-top"><span>VENTO</span><span class="metric-top-icon">≋</span></div><div class="metric-big"><strong id="wind-speed">—</strong><span class="unit-small">km/h</span></div><div class="metric-footer"><span id="wind-caption">Direção do vento</span><span id="wind-pointer" class="wind-pointer">➤</span></div></article>
+        <article class="metric-card tilt reveal"><div class="metric-top"><span>ÍNDICE UV</span><span class="metric-top-icon">✳</span></div><div class="metric-big"><strong id="uv-index">—</strong><span class="unit-small">UV</span></div><div class="uv-spectrum"><i id="uv-indicator"></i></div><div class="metric-footer"><span id="uv-caption">Exposição solar</span><span>04</span></div></article>
+      </div>
+    </section>
+
+    <section class="forecast-section" id="previsao" aria-labelledby="forecast-title">
+      <div class="page-width">
+        <div class="section-eyebrow reveal"><span>02 / PRÓXIMOS DIAS</span><span>PREVISÃO ATUALIZADA PARA A SUA CIDADE</span></div>
+        <div class="forecast-title-wrap reveal"><h2 id="forecast-title">O que vem<br>pela frente<span>.</span></h2><div class="heading-side"><span class="heading-bar"></span><p>Uma visão clara das próximas horas e dos próximos sete dias. Sem complicar.</p></div></div>
+        <div class="forecast-top-grid">
+          <article class="timeline-panel reveal" aria-labelledby="timeline-title">
+            <div class="chart-header"><div><span class="eyebrow">PRÓXIMAS 24 HORAS</span><h3 id="timeline-title">Hora a hora</h3></div><div class="chart-controls" role="group" aria-label="Indicador do gráfico"><button type="button" class="chart-option active" data-metric="temperature" aria-pressed="true">Temperatura</button><button type="button" class="chart-option" data-metric="rain" aria-pressed="false">Chuva</button><button type="button" class="chart-option" data-metric="wind" aria-pressed="false">Vento</button></div></div>
+            <div class="chart-wrap" id="chart-wrap"><svg id="timeline-chart" viewBox="0 0 880 280" preserveAspectRatio="none" role="img" aria-label="Gráfico interativo das próximas 24 horas"></svg><div class="chart-cursor" id="chart-cursor" hidden><span class="chart-cursor-dot"></span><span id="chart-tooltip">--</span></div><div class="chart-skeleton">Carregando previsão...</div></div>
+            <div class="timeline-footer"><span class="timeline-stats"><span class="legend-dot"></span><span id="chart-stat">Aguardando os dados</span></span><span class="timeline-helper">PASSE O CURSOR OU USE ← →</span></div>
+          </article>
+          <article class="forecast-insight reveal"><div class="insight-top"><span>RESUMO DO DIA</span><span>↗</span></div><div id="insight-icon" class="insight-icon" aria-hidden="true">☀</div><h3 id="insight-title">Analisando as próximas horas</h3><p id="insight-text">O resumo aparece assim que recebermos os dados.</p><div class="insight-footer"><span>ATMOS / NOTA DE HOJE</span><span class="insight-index">01</span></div></article>
+        </div>
+        <div class="week-head reveal"><div><span class="eyebrow">7 DIAS</span><h3>Planeje a semana.</h3></div><span class="week-hint">SELECIONE UM DIA PARA VER DETALHES <span>↘</span></span></div>
+        <div class="week-scroller reveal" id="week-list" role="list" aria-label="Previsão dos próximos sete dias"><div class="loading-line">Carregando semana...</div></div>
+        <div class="forecast-bottom-grid">
+          <article class="day-detail reveal" id="day-detail" aria-live="polite">
+            <div class="small-card-label"><span>DIA SELECIONADO</span><span>↗</span></div>
+            <h4 id="detail-day">Hoje</h4><p id="detail-condition">Carregando condições...</p>
+            <div class="day-detail-grid"><div><span>Máxima / mínima</span><strong id="detail-temps">— / —</strong></div><div><span>Chance de chuva</span><strong id="detail-rain">—</strong></div><div><span>Vento máximo</span><strong id="detail-wind">—</strong></div><div><span>Nascer / pôr do sol</span><strong id="detail-sun">—</strong></div></div>
+          </article>
+          <article class="solar-card reveal"><div class="small-card-label"><span>LUZ DO DIA</span><span>↗</span></div><div class="solar-visual" aria-hidden="true"><div class="solar-horizon"></div><div class="solar-track"></div><span class="horizon-sun" id="horizon-sun"></span></div><div class="solar-times"><div><small>NASCE</small><strong id="sunrise">--:--</strong></div><div class="solar-center"><small>DURAÇÃO DO DIA</small><strong id="daylight-length">—</strong></div><div><small>SE PÕE</small><strong id="sunset">--:--</strong></div></div></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="page-width footer-inner"><div class="footer-brand"><span class="footer-mark">◉</span> ATMOS<span>®</span><small>O CLIMA EM OUTRA PERSPECTIVA.</small></div><div class="footer-right"><button type="button" id="share-button" class="share-button">Compartilhar previsão <span>↗</span></button><span>Dados: <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> · <span id="year">2026</span></span><a href="#topo">Voltar ao início ↑</a></div></div></footer>
+
+  <div class="palette-backdrop" id="palette-backdrop" hidden></div>
+  <section class="command-palette" id="command-palette" role="dialog" aria-modal="true" aria-labelledby="palette-title" hidden>
+    <div class="palette-search-line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></svg><input type="search" id="palette-input" placeholder="Buscar uma cidade..." autocomplete="off" aria-label="Buscar uma cidade"><button type="button" id="palette-close" aria-label="Fechar busca">ESC</button></div>
+    <h2 id="palette-title">ESCOLHA UMA CIDADE <span>↗</span></h2>
+    <div id="palette-list" class="palette-list" role="listbox" aria-label="Cidades encontradas"></div>
+    <div class="palette-foot"><span>↑ ↓ NAVEGAR · ENTER SELECIONAR</span><span>OPEN-METEO GEOCODING</span></div>
+  </section>
+  <div class="toast-container" id="toast-container" aria-live="polite" role="status"></div>
+</body>
+</html>
